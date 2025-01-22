@@ -2,11 +2,14 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	"os"
+	"strconv"
 	"time"
+
+	"github.com/aquasecurity/table"
 )
 
-// Todo struct defines a task
+// Todo represents a single todo item
 type Todo struct {
 	Title       string
 	Completed   bool
@@ -14,28 +17,53 @@ type Todo struct {
 	CompletedAt *time.Time
 }
 
-// Todos is a slice of Todo items
+// Todos represents a list of Todo items
 type Todos []Todo
 
-// ValidateIndex ensures the given index is valid for the Todos slice
+// add adds a new todo to the list
+func (todos *Todos) add(title string) {
+	todo := Todo{
+		Title:       title,
+		Completed:   false,
+		CompletedAt: nil,
+		CreatedAt:   time.Now(),
+	}
+	*todos = append(*todos, todo)
+}
+
+// validateIndex ensures the given index is valid
 func (todos *Todos) validateIndex(index int) error {
 	if index < 0 || index >= len(*todos) {
-		err := errors.New("invalid index")
-		fmt.Println(err)
-		return err
+		return errors.New("invalid index")
 	}
 	return nil
 }
 
-// Delete removes a todo at the specified index
+// delete removes a todo by index
 func (todos *Todos) delete(index int) error {
-	t:=*todos
-	// Validate the index first
-	if err := t.validateIndex(index); err != nil {
+	if err := todos.validateIndex(index); err != nil {
 		return err
 	}
-
-	// Remove the item at the index
 	*todos = append((*todos)[:index], (*todos)[index+1:]...)
 	return nil
+}
+
+// print displays the todos in a formatted table
+func (todos *Todos) print() {
+	table := table.New(os.Stdout)
+	table.SetRowLines(false)
+	table.SetHeaders("#", "Title", "Completed", "Created At", "Completed At")
+	for i, t := range *todos {
+		completed := "❌"
+		completedAt := ""
+
+		if t.Completed {
+			completed = "✅"
+			if t.CompletedAt != nil {
+				completedAt = t.CompletedAt.Format(time.RFC1123)
+			}
+		}
+		table.AddRow(strconv.Itoa(i), t.Title, completed, t.CreatedAt.Format(time.RFC1123), completedAt)
+	}
+	table.Render()
 }
