@@ -1,4 +1,4 @@
-# Go CLI TODO App
+# GO CLI TODO App
 
 A simple Command Line Interface (CLI) application written in Go to manage a list of TODOs. The app supports saving and loading tasks from a JSON file for persistent storage.
 
