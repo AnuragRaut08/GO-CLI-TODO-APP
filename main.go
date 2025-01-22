@@ -26,4 +26,18 @@ func main() {
 	for i, todo := range *todos {
 		fmt.Printf("%d: %+v\n", i, todo)
 	}
+
+	package main
+
+	func main() {
+	todos := Todos{}
+	
+	storage := NewStorage[Todos]("todos.json")
+	storage.Load(&todos)
+	
+	cmdFlags := NewCmdFlags()
+	cmdFlags.Execute(&todos)
+	
+	storage.Save(todos)
+	}
 }
